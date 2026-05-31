@@ -91,6 +91,16 @@
 #include "utils/TagMonitor.h"
 #include "utils/Utils.h"
 
+#include "ext/include/CameraServiceExtFactory.h"
+
+#ifdef CAMERA_NEEDS_CLIENT_INFO_LIB
+#include <vendor/oneplus/hardware/camera/1.0/IOnePlusCameraProvider.h>
+#endif
+
+#ifdef CAMERA_NEEDS_CLIENT_INFO_LIB_OPLUS
+#include <vendor/oplus/hardware/cameraMDM/2.0/IOPlusCameraMDM.h>
+#endif
+
 namespace {
     const char* kActivityServiceName = "activity";
     const char* kSensorPrivacyServiceName = "sensor_privacy";
@@ -4147,6 +4157,7 @@ void CameraService::logServiceError(const std::string &msg, int errorCode) {
 status_t CameraService::onTransact(uint32_t code, const Parcel& data, Parcel* reply,
         uint32_t flags) {
 
+    ALOGI("CameraService::onTransact: code=0x%x (%d)", code, code);
     // Permission checks
     switch (code) {
         case SHELL_COMMAND_TRANSACTION: {
@@ -4173,6 +4184,11 @@ status_t CameraService::onTransact(uint32_t code, const Parcel& data, Parcel* re
             }
             return NO_ERROR;
         }
+    }
+
+    // Let the extension handle it first
+    if (CameraServiceExtFactory::onTransact(code, data, reply, flags) == 0) {
+        return NO_ERROR;
     }
 
     return BnCameraService::onTransact(code, data, reply, flags);
