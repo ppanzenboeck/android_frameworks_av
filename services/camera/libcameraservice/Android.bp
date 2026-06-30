@@ -139,6 +139,7 @@ cc_library {
         "-Wextra",
         "-Werror",
         "-Wno-ignored-qualifiers",
+        "-DALLOW_NONINCREASING_TIMESTAMPS",
     ] + select(soong_config_variable("libcameraservice", "ext_lib"), {
         any @ flag_val: ["-DTARGET_PROVIDES_CAMERA_PROVIDER_EXT_LIB"],
         default: [],
