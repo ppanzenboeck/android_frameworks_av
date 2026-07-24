@@ -299,13 +299,21 @@ const SortedVector<String8>* VendorTagDescriptor::getAllSectionNames() const {
 status_t VendorTagDescriptor::lookupTag(const String8& name, const String8& section, /*out*/uint32_t* tag) const {
     ssize_t index = mReverseMapping.indexOfKey(section);
     if (index < 0) {
+#ifdef TARGET_SHIPS_OPLUS_CAM
+        ALOGV("%s: Section '%s' does not exist.", __FUNCTION__, section.c_str());
+#else
         ALOGE("%s: Section '%s' does not exist.", __FUNCTION__, section.c_str());
+#endif
         return BAD_VALUE;
     }
 
     ssize_t nameIndex = mReverseMapping[index]->indexOfKey(name);
     if (nameIndex < 0) {
+#ifdef TARGET_SHIPS_OPLUS_CAM
+        ALOGV("%s: Tag name '%s' does not exist.", __FUNCTION__, name.c_str());
+#else
         ALOGE("%s: Tag name '%s' does not exist.", __FUNCTION__, name.c_str());
+#endif
         return BAD_VALUE;
     }
 
