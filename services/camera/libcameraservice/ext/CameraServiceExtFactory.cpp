@@ -101,3 +101,61 @@ CameraServiceExtFactory::~CameraServiceExtFactory() {
 }
 
 } // namespace android
+
+#if defined(__aarch64__)
+// ---------------------------------------------------------------------------
+// fmt::v11 compatibility trampolines for prebuilt OxygenOS libcsextimpl.so
+// In Android 17 / lineage-23, fmtlib upgraded from v11 to v12, changing its
+// mangled symbol names from _ZN3fmt3v11 to _ZN3fmt3v12.
+// These tail-call branch trampolines forward libcsextimpl.so calls directly
+// to the libbase.so fmt::v12 implementations with zero overhead and full
+// register/ABI preservation.
+// ---------------------------------------------------------------------------
+__asm__(
+    ".global _ZN3fmt3v116detail11assert_failEPKciS3_\n"
+    ".type _ZN3fmt3v116detail11assert_failEPKciS3_, %function\n"
+    "_ZN3fmt3v116detail11assert_failEPKciS3_:\n"
+    "    b _ZN3fmt3v1211assert_failEPKciS2_\n"
+
+    ".global _ZN3fmt3v1112report_errorEPKc\n"
+    ".type _ZN3fmt3v1112report_errorEPKc, %function\n"
+    "_ZN3fmt3v1112report_errorEPKc:\n"
+    "    b _ZN3fmt3v1212report_errorEPKc\n"
+
+    ".global _ZN3fmt3v116detail12is_printableEj\n"
+    ".type _ZN3fmt3v116detail12is_printableEj, %function\n"
+    "_ZN3fmt3v116detail12is_printableEj:\n"
+    "    b _ZN3fmt3v126detail12is_printableEj\n"
+
+    ".global _ZN3fmt3v116detail9dragonbox16get_cached_powerEi\n"
+    ".type _ZN3fmt3v116detail9dragonbox16get_cached_powerEi, %function\n"
+    "_ZN3fmt3v116detail9dragonbox16get_cached_powerEi:\n"
+    "    b _ZN3fmt3v126detail9dragonbox16get_cached_powerEi\n"
+
+    ".global _ZN3fmt3v116detail9dragonbox10to_decimalIdEENS2_10decimal_fpIT_EES5_\n"
+    ".type _ZN3fmt3v116detail9dragonbox10to_decimalIdEENS2_10decimal_fpIT_EES5_, %function\n"
+    "_ZN3fmt3v116detail9dragonbox10to_decimalIdEENS2_10decimal_fpIT_EES5_:\n"
+    "    b _ZN3fmt3v126detail9dragonbox10to_decimalIdEENS2_10decimal_fpIT_EES5_\n"
+
+    ".global _ZN3fmt3v116detail9dragonbox10to_decimalIfEENS2_10decimal_fpIT_EES5_\n"
+    ".type _ZN3fmt3v116detail9dragonbox10to_decimalIfEENS2_10decimal_fpIT_EES5_, %function\n"
+    "_ZN3fmt3v116detail9dragonbox10to_decimalIfEENS2_10decimal_fpIT_EES5_:\n"
+    "    b _ZN3fmt3v126detail9dragonbox10to_decimalIfEENS2_10decimal_fpIT_EES5_\n"
+
+    ".global _ZN3fmt3v116detail18thousands_sep_implIcEENS1_20thousands_sep_resultIT_EENS1_10locale_refE\n"
+    ".type _ZN3fmt3v116detail18thousands_sep_implIcEENS1_20thousands_sep_resultIT_EENS1_10locale_refE, %function\n"
+    "_ZN3fmt3v116detail18thousands_sep_implIcEENS1_20thousands_sep_resultIT_EENS1_10locale_refE:\n"
+    "    b _ZN3fmt3v126detail18thousands_sep_implIcEENS1_20thousands_sep_resultIT_EENS0_10locale_refE\n"
+
+    ".global _ZN3fmt3v116detail18decimal_point_implIcEET_NS1_10locale_refE\n"
+    ".type _ZN3fmt3v116detail18decimal_point_implIcEET_NS1_10locale_refE, %function\n"
+    "_ZN3fmt3v116detail18decimal_point_implIcEET_NS1_10locale_refE:\n"
+    "    b _ZN3fmt3v126detail18decimal_point_implIcEET_NS0_10locale_refE\n"
+
+    ".global _ZN3fmt3v116detail9write_locENS0_14basic_appenderIcEENS0_9loc_valueERKNS0_12format_specsENS1_10locale_refE\n"
+    ".type _ZN3fmt3v116detail9write_locENS0_14basic_appenderIcEENS0_9loc_valueERKNS0_12format_specsENS1_10locale_refE, %function\n"
+    "_ZN3fmt3v116detail9write_locENS0_14basic_appenderIcEENS0_9loc_valueERKNS0_12format_specsENS1_10locale_refE:\n"
+    "    b _ZN3fmt3v126detail9write_locENS0_14basic_appenderIcEENS0_9loc_valueERKNS0_12format_specsENS0_10locale_refE\n"
+);
+#endif
+
