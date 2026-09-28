@@ -2648,6 +2648,44 @@ status_t Camera3Device::configureStreamsLocked(int operatingMode,
         return OK;
     }
 
+    // If there are no output streams and no input streams, the client is unconfiguring
+    // the camera device (e.g. during session teardown). Modern HALs (particularly multi-camera
+    // and AIDL HALs) do not support 0 streams and fail if a 320x240 fake stream is injected.
+    // Transition to STATUS_UNCONFIGURED directly without invoking HAL configure_streams.
+    if (mOutputStreams.size() == 0 && mInputStream == NULL) {
+        ALOGI("%s: Camera %s: No streams to configure, transitioning to UNCONFIGURED",
+                __FUNCTION__, mId.c_str());
+
+        tryRemoveFakeStreamLocked();
+
+        bool prevSessionHalBufManager = (mHalBufManagedStreamIds.size() != 0);
+        mHalBufManagedStreamIds.clear();
+        if (prevSessionHalBufManager) {
+            mRequestBufferSM.deInit();
+        }
+        mRequestThread->setHalBufferManagedStreams(mHalBufManagedStreamIds);
+
+        if (notifyRequestThread) {
+            mRequestThread->configurationComplete(mIsConstrainedHighSpeedConfiguration,
+                    sessionParams, mGroupIdPhysicalCameraMap);
+        }
+
+        const camera_metadata_t *newSessionParams = sessionParams.getAndLock();
+        const camera_metadata_t *currentSessionParams = mSessionParams.getAndLock();
+        bool updateSessionParams = (newSessionParams != currentSessionParams) ? true : false;
+        sessionParams.unlock(newSessionParams);
+        mSessionParams.unlock(currentSessionParams);
+        if (updateSessionParams)  {
+            mSessionParams = sessionParams;
+        }
+
+        mNeedConfig = false;
+        internalUpdateStatusLocked(STATUS_UNCONFIGURED);
+        mDeletedStreams.clear();
+
+        return OK;
+    }
+
     // Workaround for device HALv3.2 or older spec bug - zero streams requires
     // adding a fake stream instead.
     // TODO(b/17321404): Fix the HAL spec and remove this workaround.
