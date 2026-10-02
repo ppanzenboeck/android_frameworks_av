@@ -101,3 +101,48 @@ CameraServiceExtFactory::~CameraServiceExtFactory() {
 }
 
 } // namespace android
+
+#if defined(__aarch64__)
+// Shims for OxygenOS 16 libcsextimpl.so compiled against fmtlib v11
+// Forward calls to fmtlib v12 in libbase.so
+extern "C" {
+
+__attribute__((visibility("default"), naked)) void _ZN3fmt3v1112report_errorEPKc() {
+    asm volatile("bti c\nb _ZN3fmt3v1212report_errorEPKc");
+}
+
+__attribute__((visibility("default"), naked)) void _ZN3fmt3v116detail11assert_failEPKciS3_() {
+    asm volatile("bti c\nb _ZN3fmt3v1211assert_failEPKciS2_");
+}
+
+__attribute__((visibility("default"), naked)) void _ZN3fmt3v116detail12is_printableEj() {
+    asm volatile("bti c\nb _ZN3fmt3v126detail12is_printableEj");
+}
+
+__attribute__((visibility("default"), naked)) void _ZN3fmt3v116detail18decimal_point_implIcEET_NS1_10locale_refE() {
+    asm volatile("bti c\nb _ZN3fmt3v126detail18decimal_point_implIcEET_NS0_10locale_refE");
+}
+
+__attribute__((visibility("default"), naked)) void _ZN3fmt3v116detail18thousands_sep_implIcEENS1_20thousands_sep_resultIT_EENS1_10locale_refE() {
+    asm volatile("bti c\nb _ZN3fmt3v126detail18thousands_sep_implIcEENS1_20thousands_sep_resultIT_EENS0_10locale_refE");
+}
+
+__attribute__((visibility("default"), naked)) void _ZN3fmt3v116detail9dragonbox10to_decimalIdEENS2_10decimal_fpIT_EES5_() {
+    asm volatile("bti c\nb _ZN3fmt3v126detail9dragonbox10to_decimalIdEENS2_10decimal_fpIT_EES5_");
+}
+
+__attribute__((visibility("default"), naked)) void _ZN3fmt3v116detail9dragonbox10to_decimalIfEENS2_10decimal_fpIT_EES5_() {
+    asm volatile("bti c\nb _ZN3fmt3v126detail9dragonbox10to_decimalIfEENS2_10decimal_fpIT_EES5_");
+}
+
+__attribute__((visibility("default"), naked)) void _ZN3fmt3v116detail9dragonbox16get_cached_powerEi() {
+    asm volatile("bti c\nb _ZN3fmt3v126detail9dragonbox16get_cached_powerEi");
+}
+
+__attribute__((visibility("default"), naked)) void _ZN3fmt3v116detail9write_locENS0_14basic_appenderIcEENS0_9loc_valueERKNS0_12format_specsENS1_10locale_refE() {
+    asm volatile("bti c\nb _ZN3fmt3v126detail9write_locENS0_14basic_appenderIcEENS0_9loc_valueERKNS0_12format_specsENS0_10locale_refE");
+}
+
+} // extern "C"
+#endif
+
